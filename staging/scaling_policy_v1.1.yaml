@@ -1,0 +1,73 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: create scale down  policy
+      ec2_scaling_policy:
+        state: present
+        region: "{{ region }}"
+        name: scale-down-policy
+        adjustment_type: ChangeInCapacity
+        asg_name: "{{ asg_name }}"
+        scaling_adjustment: -1
+        min_adjustment_step: -1
+        cooldown: 300
+      register: scale_down_policy
+      tags: scaling_policy
+    - debug: var=scale_down_policy
+    - name: create scale up  policy
+      ec2_scaling_policy:
+        state: present
+        region: "{{ region }}"
+        name: scale-up-policy
+        adjustment_type: ChangeInCapacity
+        asg_name: "{{ asg_name }}"
+        scaling_adjustment: 1
+        min_adjustment_step: 1
+        cooldown: 300
+      register: scale_up_policy
+      tags: scaling_policy
+    - debug: var=scale_up_policy
+    - name: create scale down alarm
+      ec2_metric_alarm:
+        state: present
+        region: "{{ region }}"
+        name: "LOW_CPU_UTILIZATION"
+        metric: CPUUtilization
+        namespace: "AWS/EC2"
+        statistic: Average
+        comparison: "<="
+        threshold: 30
+        period: 300
+        evaluation_periods: 2
+        unit: "Percent"
+        description: "This will alarm when cpu usage average is lower than 30% for 10 minutes "
+        dimensions: 
+          AutoScalingGroupName: "{{ asg_name }}"
+        alarm_actions: 
+        - "{{ scale_down_policy.arn }}"
+      register: scale_down_alarm
+      tags: alarm
+    - debug: var=scale_down_alarm
+    - name: create scale up alarm
+      ec2_metric_alarm:
+        state: present
+        region: "{{ region }}"
+        name: "HIGH_CPU_UTILIZATION"
+        metric: CPUUtilization
+        namespace: "AWS/EC2"
+        statistic: Average
+        comparison: ">="
+        threshold: 70
+        period: 300
+        evaluation_periods: 2
+        unit: "Percent"
+        description: "This will alarm when cpu usage average is lower than 70% for 10 minutes "
+        dimensions: 
+          AutoScalingGroupName: "{{ asg_name }}"
+        alarm_actions: 
+        - "{{ scale_up_policy.arn }}"
+      register: scale_up_alarm
+      tags: alarm
+    - debug: var=scale_up_alarm    
+...

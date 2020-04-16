@@ -1,0 +1,31 @@
+---
+- name: Create auto scaling group
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: Create ASG
+    ec2_asg:
+      name: "{{ asg_name }}"
+      region: ap-south-1
+      #load_balancers: service_uat # used for classic load balancer
+      availability_zones: ['ap-south-1a', 'ap-south-1b']
+      launch_config_name: "{{ launch_config }}"
+      health_check_period: 500
+      health_check_type: ELB
+      target_group_arns: arn:aws:elasticloadbalancing:ap-south-1:050879484863:targetgroup/asg-demo/43a0e86082fe20c3
+      notification_topic: arn:aws:sns:ap-south-1:050879484863:mis-ansible-notify 
+      min_size: 1
+      max_size: 2
+      desired_capacity: 1
+      #replace_all_instances: no
+      vpc_zone_identifier: ['subnet-05abca97f8fbfbf79', 'subnet-0531fbb421366bf44']
+      tags:
+        - Environment: GREEN
+        - Name: "{{ instance_name }}"
+        - BU: MIS
+        - OS: AMAZON/LINUX
+        - Service: "{{ service_name }}"
+      #wait_for_instances: yes
+    register: asg_info
+  - debug: var=asg_info
+...

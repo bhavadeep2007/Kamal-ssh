@@ -1,0 +1,23 @@
+- hosts: localhost
+  connection: local
+  tasks:
+  - elb_target_group:
+      name: "{{ target_group_name }}"
+      protocol: "{{ traffic_protocol }}"
+      port: "{{ traffic_port }}"
+      vpc_id: vpc-035fdbc6b57c6319c
+      health_check_path: "{{ health_path }}"
+      health_check_protocol: "{{ traffic_protocol }}"
+      health_check_port: "{{ traffic_port }}"
+      successful_response_codes: "200"
+      state: present
+      stickiness_enabled: no
+      healthy_threshold_count: 5
+      health_check_interval: 10
+      health_check_timeout: 5
+      unhealthy_threshold_count: 2
+      tags:
+        Environment: GREEN
+    register: target_group
+  - debug: var=target_group
+...
