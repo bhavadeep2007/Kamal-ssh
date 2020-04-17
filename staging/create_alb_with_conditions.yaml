@@ -1,0 +1,35 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: create Application Load Balancer with listener
+    elb_application_lb:
+      name: "{{ elb_name }}"
+      region: "{{ aws_region }}"
+      security_groups:
+        - ALB_SG
+      subnets:
+        - subnet-0531fbb421366bf44
+        - subnet-05abca97f8fbfbf79
+      listeners:
+        - Protocol: "{{ listener_protocol }}"
+          Port: "{{ listener_port }}"
+          SslPolicy: ELBSecurityPolicy-2016-08
+          Certificates:
+            - CertificateArn: arn:aws:acm:ap-south-1:050879484863:certificate/58a4d256-f44a-4afe-a312-22ba598378f2
+          DefaultActions:
+            - Type: forward
+              TargetGroupName: "{{ target_group_name }}"
+          Rules:
+            - Conditions:
+                - Field: path-pattern
+                  Values:
+                    - '/ets-schedule/'
+              Priority: '1'
+              Actions:
+                - TargetGroupName: "{{ target_group_name }}"
+                  Type: forward
+      state: present
+    register: elb_create_info
+  - debug: var=elb_create_info
+...

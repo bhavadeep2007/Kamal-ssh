@@ -23,7 +23,7 @@
         - Environment: GREEN
         - Name: "{{ instance_name }}"
         - BU: MIS
-        - OS: AMAZON/LINUX
+        - OS: AMAZON/LINUX2
         - Service: "{{ service_name }}"
       #wait_for_instances: yes
     register: asg_info

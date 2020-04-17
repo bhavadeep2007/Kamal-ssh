@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Delete Auto Scaling
+    ec2_asg:
+      name: "{{ asg_name }}"
+      region: ap-south-1
+      state: absent
+    register: asg_delete_info
+  - debug: var=asg_delete_info
+...  

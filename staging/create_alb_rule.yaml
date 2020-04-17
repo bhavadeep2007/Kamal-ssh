@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: create Application Load Balancer Rule
+    elb_application_lb:   

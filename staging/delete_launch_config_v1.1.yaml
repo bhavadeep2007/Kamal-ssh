@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Delete Launch Configuration
+    ec2_lc:
+      name: "{{ launch_config }}"
+      state: absent
+      region: ap-south-1
+    register: lc_delete_info
+  - debug: var=lc_delete_info
+...

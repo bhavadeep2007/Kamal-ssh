@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Delete Target Group
+    elb_target_group:
+      name: "{{ target_group_name }}"
+      region: ap-south-1
+      protocol: "{{ traffic_protocol }}"
+      port: "{{ traffic_port }}"
+      vpc_id: vpc-035fdbc6b57c6319c
+      state: absent
+    register: delete_target_group
+  - debug: var=delete_target_group
+...

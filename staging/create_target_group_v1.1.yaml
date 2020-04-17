@@ -16,6 +16,7 @@
       health_check_interval: 10
       health_check_timeout: 5
       unhealthy_threshold_count: 2
+      deregistration_delay_timeout: 60
       tags:
         Environment: GREEN
     register: target_group
