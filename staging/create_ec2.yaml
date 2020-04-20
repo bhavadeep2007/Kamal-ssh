@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+  - name: Provision EC2 Instance
+    ec2_instance:
+      name: "{{ ec2_name }}"
+      region: "{{ region }}"
+      security_groups: 

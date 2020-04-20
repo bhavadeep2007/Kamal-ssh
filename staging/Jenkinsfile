@@ -1,0 +1,37 @@
+pipeline {
+    agent ansible
+    stages {
+        stage ('Initialize') {
+            steps {
+                sh '''
+                    echo "Initialize the deployment"
+                '''
+            }
+        }
+        stage ('Create Launch Configuration') {
+            steps {
+                sh 'echo "Creating Launch Configuration' 
+            }
+        }
+        stage ('Create Auto Scaling Group') {
+            steps {
+                sh 'echo "Creating Auto Scaling Group"'
+//            build job: params.DEPLOY_JOB_NAME,parameters: [string(name: 'OPERATION',value: 'deploy'), string(name: 'IPADDRESS', value: params.IPADDRESS), string(name: 'JOB_NAME', value: "${env.JOB_NAME}"), string(name: 'SERVICE_NAME', value: 'shuttle-ui')]
+          } 
+        }
+        stage ('Creating Target Group') {
+            steps {
+                sh 'echo "Creating Target Group"'
+            }
+
+        }
+        stage ('Validation') {
+
+        steps {
+
+            sh 'echo "Validation completed"'
+            }
+        }
+    
+    }
+}
