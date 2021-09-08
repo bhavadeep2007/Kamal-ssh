@@ -1,0 +1,17 @@
+---
+
+- name: This is for hardening
+  hosts: test
+  remote_user: oncall
+  become: true
+  vars_files: 
+    - vars/basevars.yaml
+  roles: 
+    - failtoban
+    - AIDE
+    - calmdev
+    - disable-root-login
+    - iptables
+    - password-auth
+    - service-status-check
+

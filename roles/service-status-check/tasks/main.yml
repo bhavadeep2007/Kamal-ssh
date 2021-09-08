@@ -1,0 +1,10 @@
+---
+#- name: checking service status
+#  hosts: test
+#  tasks:
+  - name: checking service status
+    command: systemctl status "{{ item }}"
+    with_items:
+       - fail2ban
+    #register: result
+    ignore_errors: no

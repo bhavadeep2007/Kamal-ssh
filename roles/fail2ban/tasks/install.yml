@@ -1,0 +1,7 @@
+---
+- name: Install packages
+  package:
+    name: fail2ban
+    state: installed
+    #  with_items: '{{ fail2ban_packages }}'
+    #  when: not fail2ban_only_configure_jails

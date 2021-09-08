@@ -1,0 +1,114 @@
+---
+- name: "Ensure aide is installed"
+  package:
+    name: "{{ aide_pkg }}"
+    state: "installed"
+  retries: "3"
+  register: "aide_installed"
+  until: "aide_installed is succeeded"
+
+- name: "Ensure aide directories exists"
+  file:
+    path: "{{ item }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0700"
+  with_items:
+    - "{{ aide_logdir }}"
+    - "{{ aide_dbdir }}"
+
+#use shell here so it gets full environment
+- name: "Capture aide binary path"
+  shell: "which aide"
+  register: "aide_path"
+  changed_when: False
+  check_mode: False
+
+- name: "Check for existing aide database"
+  stat:
+    path: "{{ aide_dbdir }}/{{ aide_database_filename }}"
+  register: "aide_db_check"
+  changed_when: "not aide_db_check.stat.exists"
+  notify:
+    - "Initialize aide database"
+    - "Move new aide database into place"
+
+- name: "Configure aide"
+  template:
+    src: "aide.conf.j2"
+    dest: "{{ aide_conf_path }}"
+    validate: "{{ aide_path.stdout }} -D -c %s"
+
+#Setup crontab
+- name: "Ensure aide check is setup in crontab - No Email Report"
+  cron:
+    name: "{{ aide_cronjob_name }}"
+    backup: "yes"
+    user: "root"
+    state: "present"
+    minute: "{{ aide_cron_sched_min }}"
+    hour: "{{ aide_cron_sched_hr }}"
+    day: "{{ aide_cron_sched_day }}"
+    month: "{{ aide_cron_sched_mon }}"
+    weekday: "{{ aide_cron_sched_wkd }}"
+    job: "{{ aide_path.stdout }} --check"
+  when:
+    - "aide_cron_email_notify_recipients | length < 1"
+    - "aide_cron_schedule_check"
+    - "aide_cronjob_name is defined"
+    - "aide_cron_sched_min is defined"
+    - "aide_cron_sched_hr is defined"
+    - "aide_cron_sched_day is defined"
+    - "aide_cron_sched_mon is defined"
+    - "aide_cron_sched_wkd is defined"
+
+- name: "Ensure aide check is setup in crontab - With Email Report"
+  cron:
+    name: "{{ aide_cronjob_name }}"
+    backup: "yes"
+    user: "root"
+    state: "present"
+    minute: "{{ aide_cron_sched_min }}"
+    hour: "{{ aide_cron_sched_hr }}"
+    day: "{{ aide_cron_sched_day }}"
+    month: "{{ aide_cron_sched_mon }}"
+    weekday: "{{ aide_cron_sched_wkd }}"
+    job: "{{ aide_path.stdout }} --check | /usr/bin/mail -s 'AIDE Report - $HOSTNAME' {{ aide_cron_email_notify_recipients|join(',') }}"
+  when:
+    - "aide_cron_email_notify_recipients | length > 0"
+    - "aide_cron_schedule_check"
+    - "aide_cronjob_name is defined"
+    - "aide_cron_sched_min is defined"
+    - "aide_cron_sched_hr is defined"
+    - "aide_cron_sched_day is defined"
+    - "aide_cron_sched_mon is defined"
+    - "aide_cron_sched_wkd is defined"
+
+#Remove old cron jobs when aide_cron_schedule_check has been changed to False
+- name: "Ensure aide check is removed in crontab - No Email Report"
+  cron:
+    name: "{{ aide_cronjob_name }}"
+    state: "absent"
+  when:
+    - "aide_cron_email_notify_recipients | length < 1"
+    - "not aide_cron_schedule_check"
+    - "aide_cronjob_name is defined"
+
+- name: "Ensure aide check is removed in crontab - With Email Report"
+  cron:
+    name: "{{ aide_cronjob_name }}"
+    state: "absent"
+  when:
+    - "aide_cron_email_notify_recipients | length > 0"
+    - "not aide_cron_schedule_check"
+
+- name: "Update aide database"
+  command: "{{ aide_path.stdout }} -u"
+  register: "aide_update"
+  failed_when: "aide_update.rc > 7"
+  when:
+    - "aide_db_check.stat.exists"
+    - "aide_update_db"
+  notify:
+    - "Move new aide database into place"

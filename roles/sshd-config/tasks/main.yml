@@ -1,0 +1,33 @@
+---
+
+
+  - name: <SSH/SSHD> Enable Strict Modes
+    lineinfile: dest=/etc/ssh/sshd_config regexp="^#?StrictModes" line="StrictModes yes"
+
+  - name: <SSH/SSHD> Set Maximum Authentication Retries to 3 attempts
+    lineinfile: dest=/etc/ssh/sshd_config regexp="^#?MaxAuthTries" line="MaxAuthTries 3"
+
+  - name: <SSH/SSHD> Set Maximum number of active SSH Sessions to 5
+    lineinfile: dest=/etc/ssh/sshd_config regexp="^#?MaxSessions" line="MaxSessions 5"
+
+  - name: <SERVICE> Restart Secure Shell Daemon (SSHD) service
+    service:
+      name: sshd
+      state: restarted
+
+
+
+
+      #  - name: <SSH/SSHD> Disable Pluggable Authentication Modules (PAM)
+#    lineinfile: dest=/etc/ssh/sshd_config regexp="^#?UsePAM" line="UsePAM no"
+
+#  - name: <SSH/SSHD> Disable GSSAPI Authentication
+#    lineinfile: dest=/etc/ssh/sshd_config regexp="^#?GSSAPIAuthentication" line="GSSAPIAuthentication no"
+
+#  - name: <SSH/SSHD> Enable Public Key Authentication
+#    lineinfile: dest=/etc/ssh/sshd_config regexp="^#?PubkeyAuthentication" line="PubkeyAuthentication yes"
+
+#  - name: <SSH/SSHD> Set Login Grace Time to 90 seconds
+#    lineinfile: dest=/etc/ssh/sshd_config regexp="^#?LoginGraceTime" line="LoginGraceTime 90"
+
+
