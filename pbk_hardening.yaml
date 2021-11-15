@@ -2,16 +2,16 @@
 
 - name: This is for hardening
   hosts: test
-  remote_user: oncall
+  remote_user: ec2-user
   become: true
   vars_files: 
     - vars/basevars.yaml
   roles: 
-    - failtoban
-    - AIDE
-    - calmdev
-    - disable-root-login
-    - iptables
-    - password-auth
-    - service-status-check
+     - fail2ban
+   # - aide.done
+   # - clamav
+   # - disable-root-login2.done
+   # - iptables3
+   # - password-auth.done
+   #  - service-status-check
 

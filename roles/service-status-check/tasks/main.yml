@@ -6,5 +6,6 @@
     command: systemctl status "{{ item }}"
     with_items:
        - fail2ban
+       - aide --check
     #register: result
     ignore_errors: no

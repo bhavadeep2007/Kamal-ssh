@@ -63,3 +63,16 @@
   iptables:
     chain: INPUT
     jump: DROP
+
+#- name: Install `netfilter-persistent` && `iptables-persistent` packages
+#    package:
+#      name: "{{item}}"
+#      state: present
+#    with_items:
+#     - iptables-persistent
+#     - netfilter-persistent
+#  when: ansible_os_family == "Debian"
+
+#- include: test.yml
+#- include: test2.yml
+#- include: test3.yml

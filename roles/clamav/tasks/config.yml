@@ -1,11 +1,11 @@
 ---
-#- name: Clamav | Selinux booleans
-# seboolean:
-#   name: '{{ item.name }}'
-#   state: '{{ item.value }}'
-#persistent: 'yes'
-    # with_items: '{{ clamav_selinux_bools }}'
-    # when: clamav_selinux_enabled
+- name: Clamav | Selinux booleans
+  seboolean:
+    name: '{{ item.name }}'
+    state: '{{ item.value }}'
+    persistent: 'yes'
+  with_items: '{{ clamav_selinux_bools }}'
+  when: clamav_selinux_enabled
 
 - name: Clamav | Global directories
   file:
